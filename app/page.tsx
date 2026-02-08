@@ -18,6 +18,7 @@ export default function HomePage() {
   const [status, setStatus] = useState<{ message: string; tone: "ok" | "error" } | null>(null);
   const [licenseKey, setLicenseKey] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(LICENSE_STORAGE_KEY);
@@ -35,6 +36,20 @@ export default function HomePage() {
     setStatus(null);
     const summaries = summarizeDiff(diffText.trim());
     setSummary(formatSummary(summaries));
+  };
+
+  const handleFileUpload = async (file: File | null) => {
+    if (!file) {
+      return;
+    }
+    try {
+      const text = await file.text();
+      setDiffText(text);
+      setFileName(file.name);
+      setStatus({ message: `Loaded ${file.name}.`, tone: "ok" });
+    } catch (error) {
+      setStatus({ message: "Failed to read file.", tone: "error" });
+    }
   };
 
   const startCheckout = async () => {
@@ -104,6 +119,22 @@ export default function HomePage() {
       />
 
       <div className="row" style={{ marginTop: 12, alignItems: "center" }}>
+        <label className="badge" style={{ cursor: "pointer" }}>
+          <input
+            type="file"
+            accept=".diff,.patch,.txt"
+            style={{ display: "none" }}
+            onChange={(event) => handleFileUpload(event.target.files?.[0] ?? null)}
+          />
+          Upload diff file
+        </label>
+        {fileName && <div className="badge">Loaded: {fileName}</div>}
+        <div className="badge">
+          Tip: git diff &gt; changes.diff
+        </div>
+      </div>
+
+      <div className="row" style={{ marginTop: 12, alignItems: "center" }}>
         <button
           className="primary"
           onClick={explain}
@@ -141,6 +172,10 @@ export default function HomePage() {
 
       {summary && <div className="output">{summary}</div>}
 
+      <div className="footer">
+        Create a diff file:
+        <code style={{ marginLeft: 6 }}>git diff &gt; changes.diff</code>
+      </div>
       <div className="footer">
         Free: up to {FREE_LIMIT} lines. Pro: up to {PRO_LIMIT} lines + copy/export.
       </div>
