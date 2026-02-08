@@ -1,11 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { loadStripe } from "@stripe/stripe-js";
 import { formatSummary, summarizeDiff } from "../lib/diffSummary";
 
 const FREE_LIMIT = 300;
 const PRO_LIMIT = 5000;
-const LICENSE_STORAGE_KEY = "diff-explainer-license";
+const LICENSE_STORAGE_KEY = "patchnote-license";
+function getStripePromise() {
+  const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+  return key ? loadStripe(key) : null;
+}
 
 export default function HomePage() {
   const [diffText, setDiffText] = useState("");
@@ -40,7 +45,17 @@ export default function HomePage() {
       if (!res.ok) {
         throw new Error("Checkout failed");
       }
-      const data = (await res.json()) as { url?: string };
+      const data = (await res.json()) as { url?: string; id?: string };
+      if (data.id) {
+        const stripePromise = getStripePromise();
+        const stripe = stripePromise ? await stripePromise : null;
+        if (stripe) {
+          const result = await stripe.redirectToCheckout({ sessionId: data.id });
+          if (!result.error) {
+            return;
+          }
+        }
+      }
       if (data.url) {
         window.location.href = data.url;
         return;
@@ -76,7 +91,7 @@ export default function HomePage() {
     <div className="card">
       <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <h1>diff-explainer</h1>
+          <h1>patchnote</h1>
           <p>Paste a git diff. Get a calm, file-grouped summary.</p>
         </div>
         <div className="badge">{isPro ? "Pro unlocked" : "Free"}</div>

@@ -2,7 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "diff-explainer",
+  title: "patchnote",
   description: "Paste a git diff, get a calm summary grouped by file."
 };
 

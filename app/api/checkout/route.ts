@@ -18,9 +18,9 @@ export async function POST() {
     success_url: `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${appUrl}/?canceled=1`,
     metadata: {
-      product: "diff-explainer-pro"
+      product: "patchnote-pro"
     }
   });
 
-  return NextResponse.json({ url: session.url });
+  return NextResponse.json({ id: session.id, url: session.url });
 }

@@ -1,4 +1,4 @@
-# diff-explainer
+# patchnote
 
 Micro app: paste a git diff and get a calm, file-grouped summary of changes.
 
@@ -22,7 +22,7 @@ Required:
 - `NEXT_PUBLIC_APP_URL`
 
 Optional:
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (only needed if you switch to Stripe.js)
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (enables Stripe.js redirect)
 
 ## Stripe Webhook Testing (Stripe CLI)
 

@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       await callMinter({
         email,
         stripeSessionId: session.id,
-        product: "diff-explainer-pro"
+        product: "patchnote-pro"
       });
     } catch (error) {
       return NextResponse.json({ error: "Failed to mint entitlement" }, { status: 500 });

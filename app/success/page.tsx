@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-const LICENSE_STORAGE_KEY = "diff-explainer-license";
+const LICENSE_STORAGE_KEY = "patchnote-license";
 
 export default function SuccessPage() {
   const searchParams = useSearchParams();

@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     const minterResponse = (await callMinter({
       email,
       stripeSessionId: sessionId,
-      product: "diff-explainer-pro"
+      product: "patchnote-pro"
     })) as { licenseKey?: string; entitlementId?: string };
 
     return NextResponse.json({
