@@ -1,0 +1,25 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Scrubby deploy hook
+        env:
+          SCRUBBY_DEPLOY_HOOK_URL: ${{ secrets.SCRUBBY_DEPLOY_HOOK_URL }}
+          SCRUBBY_DEPLOY_TOKEN: ${{ secrets.SCRUBBY_DEPLOY_TOKEN }}
+        run: |
+          if [ -z "$SCRUBBY_DEPLOY_HOOK_URL" ]; then
+            echo "SCRUBBY_DEPLOY_HOOK_URL not set; skipping."
+            exit 0
+          fi
+
+          if [ -n "$SCRUBBY_DEPLOY_TOKEN" ]; then
+            curl -sS -X POST -H "Authorization: Bearer $SCRUBBY_DEPLOY_TOKEN" "$SCRUBBY_DEPLOY_HOOK_URL"
+          else
+            curl -sS -X POST "$SCRUBBY_DEPLOY_HOOK_URL"
+          fi
