@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { callMinter } from "../../../lib/minter";
+import { callVerifier } from "../../../lib/verifier";
 import { getStripe } from "../../../lib/stripe";
 
 export const runtime = "nodejs";
@@ -20,14 +20,14 @@ export async function GET(request: Request) {
 
     const email = session.customer_details?.email ?? session.customer_email ?? null;
 
-    const minterResponse = (await callMinter({
+    const verifierResponse = (await callVerifier({
       email,
       stripeSessionId: sessionId,
       product: "patchnote-pro"
     })) as { licenseKey?: string; entitlementId?: string };
 
     return NextResponse.json({
-      licenseKey: minterResponse.licenseKey ?? minterResponse.entitlementId ?? null
+      licenseKey: verifierResponse.licenseKey ?? verifierResponse.entitlementId ?? null
     });
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch entitlement" }, { status: 500 });

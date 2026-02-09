@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { callMinter } from "../../../../lib/minter";
+import { callVerifier } from "../../../../lib/verifier";
 import { getStripe } from "../../../../lib/stripe";
 
 export const runtime = "nodejs";
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const email = session.customer_details?.email ?? session.customer_email ?? null;
 
     try {
-      await callMinter({
+      await callVerifier({
         email,
         stripeSessionId: session.id,
         product: "patchnote-pro"

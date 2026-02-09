@@ -17,8 +17,7 @@ Required:
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_PRICE_ID`
-- `MINTER_API_URL`
-- `MINTER_API_TOKEN`
+- `VERIFIER_API_URL`
 - `NEXT_PUBLIC_APP_URL`
 
 Optional:
@@ -41,5 +40,5 @@ Set `STRIPE_WEBHOOK_SECRET` to the signing secret printed by `stripe listen`.
 
 ## Notes
 
-- No database. Entitlement is fetched from the minter on-demand.
+- No database. Entitlement is fetched from the verifier on-demand.
 - Pro unlock is stored in `localStorage` using the license key.
