@@ -7,6 +7,7 @@ import { formatSummary, summarizeDiff } from "../lib/diffSummary";
 const FREE_LIMIT = 300;
 const PRO_LIMIT = 5000;
 const LICENSE_STORAGE_KEY = "patchnote-license";
+const DIFF_COMMAND = "git diff > changes.diff";
 function getStripePromise() {
   const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
   return key ? loadStripe(key) : null;
@@ -58,7 +59,16 @@ export default function HomePage() {
     try {
       const res = await fetch("/api/checkout", { method: "POST" });
       if (!res.ok) {
-        throw new Error("Checkout failed");
+        let message = "Checkout failed";
+        try {
+          const errorBody = (await res.json()) as { error?: string };
+          if (errorBody?.error) {
+            message = errorBody.error;
+          }
+        } catch (parseError) {
+          // ignore parsing error
+        }
+        throw new Error(message);
       }
       const data = (await res.json()) as { url?: string; id?: string };
       if (data.id) {
@@ -77,7 +87,11 @@ export default function HomePage() {
       }
       throw new Error("Missing checkout URL");
     } catch (error) {
-      setStatus({ message: "Could not start checkout. Please try again.", tone: "error" });
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Could not start checkout. Please try again.";
+      setStatus({ message, tone: "error" });
     } finally {
       setCheckoutLoading(false);
     }
@@ -100,6 +114,15 @@ export default function HomePage() {
     link.download = "diff-summary.txt";
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const copyDiffCommand = async () => {
+    try {
+      await navigator.clipboard.writeText(DIFF_COMMAND);
+      setStatus({ message: "Command copied.", tone: "ok" });
+    } catch (error) {
+      setStatus({ message: "Copy failed.", tone: "error" });
+    }
   };
 
   return (
@@ -129,9 +152,29 @@ export default function HomePage() {
           Upload diff file
         </label>
         {fileName && <div className="badge">Loaded: {fileName}</div>}
-        <div className="badge">
-          Tip: git diff &gt; changes.diff
-        </div>
+        <div className="badge">Tip: create a .diff file</div>
+      </div>
+
+      <div className="row" style={{ marginTop: 8, alignItems: "center" }}>
+        <code className="badge" style={{ fontFamily: "\"JetBrains Mono\", ui-monospace" }}>
+          {DIFF_COMMAND}
+        </code>
+        <button className="secondary" onClick={copyDiffCommand} aria-label="Copy command">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="9" y="9" width="13" height="13" rx="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+        </button>
       </div>
 
       <div className="row" style={{ marginTop: 12, alignItems: "center" }}>
@@ -172,10 +215,6 @@ export default function HomePage() {
 
       {summary && <div className="output">{summary}</div>}
 
-      <div className="footer">
-        Create a diff file:
-        <code style={{ marginLeft: 6 }}>git diff &gt; changes.diff</code>
-      </div>
       <div className="footer">
         Free: up to {FREE_LIMIT} lines. Pro: up to {PRO_LIMIT} lines + copy/export.
       </div>
