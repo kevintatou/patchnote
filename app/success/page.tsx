@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 const LICENSE_STORAGE_KEY = "patchnote-license";
 
-export default function SuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [licenseKey, setLicenseKey] = useState<string | null>(null);
@@ -69,5 +69,13 @@ export default function SuccessPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div className="card">Loading...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }
